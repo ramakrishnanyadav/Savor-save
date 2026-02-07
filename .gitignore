@@ -1,0 +1,56 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Temporary files and scripts
+*.exe
+*.bat
+test-*.html
+verify-*.html
+setup-database.js
+apply-migration.ps1
+
+# Temporary SQL scripts (keep migration files in supabase/migrations/)
+ADD_*.sql
+FIX_*.sql
+APPLY_*.sql
+COMPLETE_*.sql
+INSERT_TEST_*.sql
+
+# Temporary markdown instruction files (keep README.md)
+*_INSTRUCTIONS.md
+*_GUIDE.md
+*_COMPLETE.md
+*_FIXED.md
+*_READY.md
+*_NOW.md
+STEP_BY_STEP*.md
+QUICK_*.md
+
+# Supabase temp directory
+supabase/.temp/
+
+# Environment files (keep .env.example if you have one)
+.env
+src/.env
