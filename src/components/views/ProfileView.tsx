@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   User, 
@@ -51,6 +51,16 @@ export function ProfileView({ isDarkMode, onToggleDarkMode }: ProfileViewProps) 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const totalSpent = expenses.reduce((sum, exp) => sum + exp.amount, 0);
+
+  // Sync editedProfile when userProfile changes (e.g., after loading from database)
+  useEffect(() => {
+    setEditedProfile(userProfile);
+  }, [userProfile]);
+
+  // Sync editedBudget when monthlyBudget changes
+  useEffect(() => {
+    setEditedBudget(monthlyBudget);
+  }, [monthlyBudget]);
 
   const handleSave = () => {
     updateProfile(editedProfile);

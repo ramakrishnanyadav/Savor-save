@@ -38,6 +38,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [expenses, setExpenses] = useState<Expense[]>(mockExpenses);
   const [userProfile, setUserProfile] = useState<UserProfile>({
     ...mockUser,
+    avatar: '', // Don't use mockUser avatar, will load from DB
     phone: '+91 98765 43210',
     location: 'Mumbai, Maharashtra',
     spiceTolerance: 'medium',
@@ -56,7 +57,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         
         if (user) {
           const { data, error } = await supabase
-            .from('user_profiles')
+            .from('profiles')
             .select('*')
             .eq('user_id', user.id)
             .single();
@@ -70,10 +71,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
             console.log('✅ Profile loaded from database:', data);
             setUserProfile(prev => ({
               ...prev,
-              name: data.full_name || prev.name,
-              avatar: data.avatar_url || prev.avatar,
+              name: data.name || prev.name,
+              avatar: data.avatar ?? '', // Use ?? to handle null/undefined, but keep empty string
               phone: data.phone || prev.phone,
-              bio: data.bio || prev.bio,
+              bio: prev.bio, // bio is not in profiles table
             }));
           }
         }
@@ -141,29 +142,33 @@ export function AppProvider({ children }: { children: ReactNode }) {
       const { data: { user } } = await supabase.auth.getUser();
       
       if (user) {
+        const updateData: any = {
+          user_id: user.id,
+          updated_at: new Date().toISOString(),
+        };
+        
+        // Only include fields that exist in the profiles table
+        if (updates.avatar !== undefined) updateData.avatar = updates.avatar;
+        if (updates.name !== undefined) updateData.name = updates.name;
+        if (updates.phone !== undefined) updateData.phone = updates.phone;
+        
         const { error } = await supabase
-          .from('user_profiles')
-          .upsert({
-            user_id: user.id,
-            avatar_url: updates.avatar,
-            full_name: updates.name,
-            phone: updates.phone,
-            bio: userProfile.bio,
-            updated_at: new Date().toISOString(),
-          }, {
+          .from('profiles')
+          .upsert(updateData, {
             onConflict: 'user_id'
           });
         
         if (error) {
           console.error('❌ Error saving profile:', error);
+          console.error('Error details:', error);
         } else {
-          console.log('✅ Profile saved to database');
+          console.log('✅ Profile saved to database', updateData);
         }
       }
     } catch (error) {
       console.error('❌ Error updating profile in database:', error);
     }
-  }, [userProfile]);
+  }, []);
 
   // Favorites functions
   const toggleFavorite = useCallback((restaurantId: string) => {
